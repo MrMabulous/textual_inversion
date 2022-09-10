@@ -194,7 +194,7 @@ class PersonalizedBase(Dataset):
         if delimiter_index != -1:
             prompt_start_index = delimiter_index + len(prompt_delimiter)
             prompt_end_index = image_path.find(".", prompt_start_index)
-            text = image_path[prompt_start_index:prompt_end_index]
+            text = image_path[prompt_start_index:prompt_end_index].format(self.placeholder_token)
         elif self.per_image_tokens and np.random.uniform() < self.mixing_prob:
             text = random.choice(imagenet_dual_templates_small).format(placeholder_string, per_img_token_list[i % self.num_images])
         else:
