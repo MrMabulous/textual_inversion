@@ -103,7 +103,13 @@ class PersonalizedBase(Dataset):
         if not image.mode == "RGB":
             image = image.convert("RGB")
 
-        if self.per_image_tokens and np.random.uniform() < 0.25:
+        prompt_delimiter = "prompt-"
+        delimiter_index = image_path.find(prompt_delimiter)
+        if delimiter_index != -1:
+            prompt_start_index = delimiter_index + len(prompt_delimiter)
+            prompt_end_index = image_path.find(".", prompt_start_index)
+            text = image_path[prompt_start_index:prompt_end_index].format(self.placeholder_token)
+        elif self.per_image_tokens and np.random.uniform() < 0.25:
             text = random.choice(imagenet_dual_templates_small).format(self.placeholder_token, per_img_token_list[i % self.num_images])
         else:
             text = random.choice(imagenet_templates_small).format(self.placeholder_token)
