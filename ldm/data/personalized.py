@@ -179,7 +179,8 @@ class PersonalizedBase(Dataset):
 
     def __getitem__(self, i):
         example = {}
-        image = Image.open(self.image_paths[i % self.num_images])
+        image_path = self.image_paths[i % self.num_images]
+        image = Image.open(image_path)
 
         if not image.mode == "RGB":
             image = image.convert("RGB")
@@ -188,7 +189,13 @@ class PersonalizedBase(Dataset):
         if self.coarse_class_text:
             placeholder_string = f"{self.coarse_class_text} {placeholder_string}"
 
-        if self.per_image_tokens and np.random.uniform() < self.mixing_prob:
+        prompt_delimiter = "prompt-"
+        delimiter_index = image_path.find(prompt_delimiter)
+        if delimiter_index != -1:
+            prompt_start_index = delimiter_index + len(prompt_delimiter)
+            prompt_end_index = image_path.find(".", prompt_start_index)
+            text = image_path[prompt_start_index:prompt_end_index]
+        elif self.per_image_tokens and np.random.uniform() < self.mixing_prob:
             text = random.choice(imagenet_dual_templates_small).format(placeholder_string, per_img_token_list[i % self.num_images])
         else:
             text = random.choice(imagenet_templates_small).format(placeholder_string)
